@@ -14,6 +14,15 @@ class GameHandler(BaseHandler):
         If no fen is provided, then it writes out the board in starting position.
         """
 
+        #Check cookie, retrieve representation of FEN board after computer made move
+        #if there is no cookie, make FEN board in starting position and set new cookie value
+        #get list of all legal moves from this board
+        #check that the received FEN board is indeed one move away from previous FEN board
+        #if received board is illegal, send player_tried_cheating=True and have frontend reset board
+        #if received board is legal, calculate best move and return
+
+        #if receives parameters which is UCI but not "depth", return snarky comment which says "i have of course patched that one"
+
         fen = self.get_argument('fen', None) or chess.STARTING_FEN
         move = self.get_argument('move', None)
 
