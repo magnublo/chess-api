@@ -27,13 +27,18 @@ function onDragStart (source, piece, position, orientation) {
   if (piece.search(/^b/) !== -1) return false
 }
 
-function makeRandomMove () {
-  var possibleMoves = game.moves()
+function makeComputerMove () {
 
-  if (possibleMoves.length === 0) return
+  fen_board = game.fen()
+  var bestMove;
 
-  var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-  game.move(possibleMoves[randomIdx])
+  $.post( "game", { fen: fen_board})
+    .done(function( data ) {
+      bestMove = data.turn.bestMove
+      console.log(bestMove.substring(2,4))
+      game.move(bestMove.substring(2,4))
+  });
+
   board.position(game.fen())
 }
 
@@ -47,7 +52,7 @@ function onDrop (source, target) {
 
   if (move === null) return 'snapback'
 
-  window.setTimeout(makeRandomMove, 250)
+  window.setTimeout(makeComputerMove, 250)
 }
 
 function onSnapEnd () {

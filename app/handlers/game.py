@@ -7,7 +7,7 @@ from app.handlers import BaseHandler, engine
 
 class GameHandler(BaseHandler):
 
-    def get(self):
+    def post(self):
 
         """
         Write out all of the board information for a given FEN.
