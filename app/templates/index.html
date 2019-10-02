@@ -29,17 +29,17 @@ function onDragStart (source, piece, position, orientation) {
 
 function makeComputerMove () {
 
-  fen_board = game.fen()
+  var fen_board = game.fen()
   var bestMove;
 
-  $.post( "game", { fen: fen_board})
+  $.post( "game", { 'position': fen_board})
     .done(function( data ) {
       bestMove = data.turn.bestMove
       console.log(bestMove.substring(2,4))
-      game.move(bestMove.substring(2,4))
+      game.move({ from: bestMove.substring(0,2), to: bestMove.substring(2,4) });
+      board.position(game.fen())
   });
 
-  board.position(game.fen())
 }
 
 function onDrop (source, target) {
@@ -56,7 +56,7 @@ function onDrop (source, target) {
 }
 
 function onSnapEnd () {
-  board.position(game.fen())
+
 }
 
 var config = {
