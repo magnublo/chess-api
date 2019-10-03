@@ -5,10 +5,10 @@ from random import random
 
 import chess
 
-from app.app import db_session
 from app.handlers import BaseHandler, engine
 from app.models.chess_session import ChessSession
 from definitions import COOKIE_NAME, ARGUMENT_INJECTION_PERCENTAGE_THRESHOLD, TOTAL_NR_OF_INJECTIONS_THRESHOLD
+from main import db_session
 
 
 def _replace_oldest_chess_session_with_new(cookie_val):
@@ -45,7 +45,7 @@ class GameHandler(BaseHandler):
         self._check_if_player_has_won(chess_session_row)
         received_board = chess.Board(self.get_argument("position"))
         best_move = self.get_best_move(received_board)
-        self.write_json(best_move)
+        self.finish({"bestMove": best_move})
 
         # Check cookie, retrieve last FEN board
         # if there is no cookie, make FEN board in starting position and set new cookie value
@@ -194,16 +194,16 @@ class GameHandler(BaseHandler):
         self.finish(output)
 
     def _has_injected_argument(self):
-        search_moves = self.get_argument('searchMoves', None)
-        ponder = self.get_argument('ponder', None)
-        wtime = self.get_argument('wtime', None)
-        btime = self.get_argument('btime', None)
-        winc = self.get_argument('winc', None)
-        binc = self.get_argument('binc', None)
-        movestogo = self.get_argument('movestogo', None)
-        depth = self.get_argument('depth', None)
-        nodes = self.get_argument('nodes', None)
-        mate = self.get_argument('mate', None)
+        search_moves = self.get_argument('searchMoves', False)
+        ponder = self.get_argument('ponder', False)
+        wtime = self.get_argument('wtime', False)
+        btime = self.get_argument('btime', False)
+        winc = self.get_argument('winc', False)
+        binc = self.get_argument('binc', False)
+        movestogo = self.get_argument('movestogo', False)
+        depth = self.get_argument('depth', False)
+        nodes = self.get_argument('nodes', False)
+        mate = self.get_argument('mate', False)
 
         return search_moves or wtime or btime or depth or nodes or mate
 

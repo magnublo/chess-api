@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Float, Integer
 
-from app.app import Base
+from main import Base
 
 TABLE_NAME = 'chess_session'
 PRIMARY_KEY = 'id'

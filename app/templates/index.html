@@ -34,7 +34,7 @@ function makeComputerMove () {
 
   $.post( "game", { 'position': fen_board})
     .done(function( data ) {
-      bestMove = data.turn.bestMove
+      bestMove = data.bestMove
       console.log(bestMove.substring(2,4))
       game.move({ from: bestMove.substring(0,2), to: bestMove.substring(2,4) });
       board.position(game.fen())

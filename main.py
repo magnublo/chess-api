@@ -1,9 +1,19 @@
 import os
 import platform
+
 import tornado.httpserver
 import tornado.ioloop
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from tornado.options import define, options
 
+from definitions import DB_ENGINE_URL, DB_CLIENT_ENCODING
+
+engine = create_engine(DB_ENGINE_URL, encoding=DB_CLIENT_ENCODING)
+Session = sessionmaker(bind=engine)
+Base = declarative_base()
+db_session = Session()
 
 def setup():
     system = platform.system()
