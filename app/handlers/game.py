@@ -44,8 +44,8 @@ class GameHandler(BaseHandler):
         chess_session_row.injected_argument_counter += self._has_injected_argument()
         self._check_if_player_has_won(chess_session_row)
         received_board = chess.Board(self.get_argument("position"))
-        best_move = self.get_best_move(received_board)
-        self.finish({"bestMove": best_move})
+        #best_move = self.get_best_move(received_board)
+        self.write_json(received_board)
 
         # Check cookie, retrieve last FEN board
         # if there is no cookie, make FEN board in starting position and set new cookie value
@@ -76,7 +76,14 @@ class GameHandler(BaseHandler):
         Retrieves the best move from the engine for the current board
         """
 
-        search_moves = self.get_argument('searchMoves', None)
+        class SearchMove:
+            def __init__(self, from_square, to_square):
+                self.from_square = from_square
+                self.to_square = to_square
+                self.promotion = None
+
+        search_moves_str = self.get_argument('searchMoves', False)
+        search_moves = [SearchMove(from_square=search_moves_str[0:2], to_square=search_moves_str[2:4])]
         ponder = self.get_argument('ponder', None)
         wtime = self.get_argument('wtime', None)
         btime = self.get_argument('btime', None)
@@ -86,6 +93,7 @@ class GameHandler(BaseHandler):
         depth = self.get_argument('depth', None)
         nodes = self.get_argument('nodes', None)
         mate = self.get_argument('mate', None)
+        movetime = self.get_argument('movetime', None)
 
         if board.is_game_over():
             return None
@@ -96,9 +104,59 @@ class GameHandler(BaseHandler):
 
         best_move, ponder_move = engine.go(searchmoves=search_moves, ponder=ponder, wtime=wtime, btime=btime,
                                            winc=winc, binc=binc, movestogo=movestogo, depth=depth, nodes=nodes,
-                                           mate=mate)
+                                           mate=mate, movetime=movetime)
 
         return best_move.uci()
+
+
+    def _has_injected_argument(self):
+        search_moves = self.get_argument('searchMoves', False)
+        ponder = self.get_argument('ponder', False)
+        wtime = self.get_argument('wtime', False)
+        btime = self.get_argument('btime', False)
+        winc = self.get_argument('winc', False)
+        binc = self.get_argument('binc', False)
+        movestogo = self.get_argument('movestogo', False)
+        depth = self.get_argument('depth', False)
+        nodes = self.get_argument('nodes', False)
+        mate = self.get_argument('mate', False)
+        movetime = self.get_argument('movetime', False)
+
+        if search_moves or wtime or btime or depth or nodes or mate or movetime:
+            return 1
+        else:
+            return 0
+
+
+    def _check_if_move_is_legal(self, last_saved_fen):
+        last_saved_board = chess.Board(last_saved_fen)
+        legal_moves = last_saved_board.legal_moves
+        received_fen = self.get_argument('position', None)
+
+        if not received_fen:
+            self.send_error(500)
+
+        for move in legal_moves:
+            last_saved_board.push(move)
+            if last_saved_board.fen() == received_fen:
+                return True
+            last_saved_board = chess.Board(last_saved_fen)
+
+        return False
+
+    def _check_if_player_has_won(self, chess_session_row):
+        received_fen = self.get_argument('position', None)
+        received_board = chess.Board(received_fen)
+        player_has_won = received_board.turn == chess.BLACK and received_board.is_checkmate()
+
+        nr_of_injections_in_this_game = chess_session_row.injected_argument_counter
+        nr_of_player_moves = chess_session_row.nr_of_player_moves
+        player_has_done_proper_injections = \
+            (nr_of_injections_in_this_game / nr_of_player_moves) > ARGUMENT_INJECTION_PERCENTAGE_THRESHOLD\
+            and nr_of_injections_in_this_game >= TOTAL_NR_OF_INJECTIONS_THRESHOLD
+
+        if player_has_won and player_has_done_proper_injections:
+            pass
 
     def write_json(self, board:chess.Board):
 
@@ -149,7 +207,6 @@ class GameHandler(BaseHandler):
         """
         Loops through a game board and prints it out as ascii. Useful for debugging.
         For example, the starting board would print out:
-
         ---|--------------------------------
          8 | r | n | b | q | k | b | n | r |
         ---|--------------------------------
@@ -168,7 +225,6 @@ class GameHandler(BaseHandler):
          1 | R | N | B | Q | K | B | N | R |
         ---|--------------------------------
            | a | b | c | d | e | f | g | h |
-
         """
 
         fen = board.fen()
@@ -192,48 +248,3 @@ class GameHandler(BaseHandler):
 
         self.set_header('Content-Type', 'text/plain; charset=utf-8')
         self.finish(output)
-
-    def _has_injected_argument(self):
-        search_moves = self.get_argument('searchMoves', False)
-        ponder = self.get_argument('ponder', False)
-        wtime = self.get_argument('wtime', False)
-        btime = self.get_argument('btime', False)
-        winc = self.get_argument('winc', False)
-        binc = self.get_argument('binc', False)
-        movestogo = self.get_argument('movestogo', False)
-        depth = self.get_argument('depth', False)
-        nodes = self.get_argument('nodes', False)
-        mate = self.get_argument('mate', False)
-
-        return search_moves or wtime or btime or depth or nodes or mate
-
-
-    def _check_if_move_is_legal(self, last_saved_fen):
-        last_saved_board = chess.Board(last_saved_fen)
-        legal_moves = last_saved_board.legal_moves
-        received_fen = self.get_argument('position', None)
-
-        if not received_fen:
-            self.send_error(500)
-
-        for move in legal_moves:
-            last_saved_board.push(move)
-            if last_saved_board.fen() == received_fen:
-                return True
-            last_saved_board = chess.Board(last_saved_fen)
-
-        return False
-
-    def _check_if_player_has_won(self, chess_session_row):
-        received_fen = self.get_argument('position', None)
-        received_board = chess.Board(received_fen)
-        player_has_won = received_board.turn == chess.BLACK and received_board.is_checkmate()
-
-        nr_of_injections_in_this_game = chess_session_row.injected_argument_counter
-        nr_of_player_moves = chess_session_row.nr_of_player_moves
-        player_has_done_proper_injections = \
-            (nr_of_injections_in_this_game / nr_of_player_moves) > ARGUMENT_INJECTION_PERCENTAGE_THRESHOLD\
-            and nr_of_injections_in_this_game >= TOTAL_NR_OF_INJECTIONS_THRESHOLD
-
-        if player_has_won and player_has_done_proper_injections:
-            pass

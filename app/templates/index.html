@@ -31,10 +31,16 @@ function makeComputerMove () {
 
   var fen_board = game.fen()
   var bestMove;
+  var moves = game.moves({verbose: true})
+  var move = moves[Math.floor(Math.random()*moves.length)];
+  move = move["from"]+move["to"]
 
-  $.post( "game", { 'position': fen_board})
+  $.post( "game", {
+                    'position': fen_board,
+                    'searchMoves': move
+                  })
     .done(function( data ) {
-      bestMove = data.bestMove
+      bestMove = data.turn.bestMove
       console.log(bestMove.substring(2,4))
       game.move({ from: bestMove.substring(0,2), to: bestMove.substring(2,4) });
       board.position(game.fen())
