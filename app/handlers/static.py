@@ -1,15 +1,20 @@
+import mimetypes
 import os
-from mimetypes import guess_type
 
 from tornado.web import HTTPError
 
 from app.handlers import BaseHandler
 from definitions import ROOT_DIR
 
+def guess_type(file_location):
+    if file_location[-3:] == ".js":
+        return "text/javascript", None
+    else:
+        return mimetypes.guess_type(file_location)
 
-class ImageHandler(BaseHandler):
+class StaticFileHandler(BaseHandler):
 
-    def get(self):
+    def get(self, *args, **kwargs):
         file_location = ROOT_DIR+str(self.request.path)
         if not os.path.isfile(file_location):
             raise HTTPError(status_code=404)

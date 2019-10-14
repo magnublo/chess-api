@@ -12,66 +12,12 @@
 
 <div id="myBoard" style="width: 400px"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js" integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz" crossorigin="anonymous"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/chessboard.min.js"></script>
+<script src="js/chess.js"></script>
+<script src="js/gamefuncs.js"></script>
 
 <script>
-var board = null
-var game = new Chess()
-
-function onDragStart (source, piece, position, orientation) {
-
-  if (game.game_over()) return false
-
-  if (piece.search(/^b/) !== -1) return false
-}
-
-function makeComputerMove () {
-
-  var fen_board = game.fen()
-  var bestMove;
-  var moves = game.moves({verbose: true})
-  var move = moves[Math.floor(Math.random()*moves.length)];
-  move = move["from"]+move["to"]
-
-  $.post( "game", {
-                    'position': fen_board,
-                    'searchMoves': move
-                  })
-    .done(function( data ) {
-      bestMove = data.turn.bestMove
-      console.log(bestMove.substring(2,4))
-      game.move({ from: bestMove.substring(0,2), to: bestMove.substring(2,4) });
-      board.position(game.fen())
-  });
-
-}
-
-function onDrop (source, target) {
-
-  var move = game.move({
-    from: source,
-    to: target,
-    promotion: 'q'
-  })
-
-  if (move === null) return 'snapback'
-
-  window.setTimeout(makeComputerMove, 250)
-}
-
-function onSnapEnd () {
-
-}
-
-var config = {
-  draggable: true,
-  position: 'start',
-  onDragStart: onDragStart,
-  onDrop: onDrop,
-  onSnapEnd: onSnapEnd
-}
 board = Chessboard('myBoard', config)
 </script>
 </body>

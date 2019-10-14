@@ -44,8 +44,9 @@ class GameHandler(BaseHandler):
         chess_session_row.injected_argument_counter += self._has_injected_argument()
         self._check_if_player_has_won(chess_session_row)
         received_board = chess.Board(self.get_argument("position"))
-        #best_move = self.get_best_move(received_board)
-        self.write_json(received_board)
+        best_move = self.get_best_move(received_board)
+        self.write({"bestMove": best_move})
+        self.finish()
 
         # Check cookie, retrieve last FEN board
         # if there is no cookie, make FEN board in starting position and set new cookie value
@@ -83,7 +84,11 @@ class GameHandler(BaseHandler):
                 self.promotion = None
 
         search_moves_str = self.get_argument('searchMoves', False)
-        search_moves = [SearchMove(from_square=search_moves_str[0:2], to_square=search_moves_str[2:4])]
+        if search_moves_str:
+            search_moves = [SearchMove(from_square=search_moves_str[0:2], to_square=search_moves_str[2:4])]
+        else:
+            search_moves = None
+
         ponder = self.get_argument('ponder', None)
         wtime = self.get_argument('wtime', None)
         btime = self.get_argument('btime', None)

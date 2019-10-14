@@ -4,7 +4,7 @@ import tornado.web
 from tornado.options import options
 
 from app.handlers import IndexHandler, GameHandler
-from app.handlers.image import ImageHandler
+from app.handlers.static import StaticFileHandler
 from main import engine, Base
 
 
@@ -15,7 +15,8 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r'/game', GameHandler),
-            (r'/img\/chesspieces\/wikipedia\/[a-zA-Z]{2}\.png', ImageHandler),
+            (r'/img\/chesspieces\/wikipedia\/[a-zA-Z]{2}\.png', StaticFileHandler),
+            (r'/js\/(.+)\.js', StaticFileHandler),
             (r'/(.*)', IndexHandler)
         ]
 
