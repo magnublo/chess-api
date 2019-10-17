@@ -9,7 +9,9 @@
   <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
 </head>
 <body>
-
+<button id="startPositionBtn">Start Position</button>
+<br>
+<br>
 <div id="myBoard" style="width: 400px"></div>
 
 <script src="js/jquery.min.js"></script>
@@ -20,5 +22,11 @@
 <script>
 board = Chessboard('myBoard', config)
 </script>
+<br>
+<div id="msg">
+</div>
+    <br>
+<div id="info">
+</div>
 </body>
 </html>

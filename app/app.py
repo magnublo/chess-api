@@ -5,14 +5,11 @@ from tornado.options import options
 
 from app.handlers import IndexHandler, GameHandler
 from app.handlers.static import StaticFileHandler
-from main import engine, Base
 
 
 class Application(tornado.web.Application):
 
-    def __init__(self):
-        Base.metadata.create_all(engine)
-
+    def __init__(self, **kwargs):
         handlers = [
             (r'/game', GameHandler),
             (r'/img\/chesspieces\/wikipedia\/[a-zA-Z]{2}\.png', StaticFileHandler),
@@ -26,4 +23,4 @@ class Application(tornado.web.Application):
             template_path=os.path.join(os.path.dirname(__file__), 'templates')
         )
 
-        super(Application, self).__init__(handlers, **settings)
+        super(Application, self).__init__(handlers, **settings, **kwargs)

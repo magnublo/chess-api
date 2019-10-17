@@ -1,11 +1,29 @@
 var board = null
 var game = new Chess()
 
+/*$('#startPositionBtn').on('click', () => {
+    if (board != null){board.start; return;}
+)*/
+
+
+$('#startPositionBtn').on('click', () => {
+ game = new Chess();
+ board.position(game.fen())
+})
+
 function onDragStart (source, piece, position, orientation) {
 
   if (game.game_over()) return false
 
   if (piece.search(/^b/) !== -1) return false
+}
+
+function getLegalMoves () {
+    const moves = game.moves({'verbose': true})
+    var formatted_moves = []
+
+    moves.forEach(move => formatted_moves.push(move.from + move.to))
+    return formatted_moves
 }
 
 function makeComputerMove () {
@@ -17,23 +35,47 @@ function makeComputerMove () {
                     'position': fen_board
                   })
     .done(function( data ) {
-      bestMove = data.bestMove
-      console.log(bestMove.substring(2,4))
-      game.move({ from: bestMove.substring(0,2), to: bestMove.substring(2,4) });
-      board.position(game.fen())
+        if (data.hasOwnProperty("msg")){
+            document.getElementById('msg').innerHTML=data.msg
+        }else{
+            document.getElementById('msg').innerHTML=""
+        }
+        if (data.hasOwnProperty("info")){
+            document.getElementById('info').innerHTML=data.info
+        }else{
+            document.getElementById('info').innerHTML=""
+        }
+        if (data.hasOwnProperty("resetBoard")) {
+            game = new Chess()
+            board.position(game.fen())
+        }else {
+            bestMove = data.bestMove
+            game.move({from: bestMove.substring(0, 2), to: bestMove.substring(2, 4)});
+            board.position(game.fen())
+        }
   });
 
 }
 
 function onDrop (source, target) {
 
-  var move = game.move({
+  var legalMoves = getLegalMoves()
+
+    var move = game.move({
     from: source,
     to: target,
     promotion: 'q'
-  })
+    })
 
-  if (move === null) return 'snapback'
+    if (move === null) return 'snapback'
+
+    const moveIsIllegal = legalMoves.includes(move.from + move.to) == false
+
+  if (moveIsIllegal) {
+      return 'snapback'
+  }
+
+
 
   window.setTimeout(makeComputerMove, 250)
 }

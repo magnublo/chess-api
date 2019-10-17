@@ -1,7 +1,8 @@
 import tornado.web
+from tornado_sqlalchemy import SessionMixin
 
 
-class BaseHandler(tornado.web.RequestHandler):
+class BaseHandler(SessionMixin, tornado.web.RequestHandler):
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")

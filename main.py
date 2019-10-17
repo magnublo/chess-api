@@ -4,18 +4,14 @@ import platform
 import tornado.httpserver
 import tornado.ioloop
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from tornado.options import define, options
 
-from definitions import DB_ENGINE_URL, DB_CLIENT_ENCODING
+from definitions import DB_ENGINE_URL, Base
 
-engine = create_engine(DB_ENGINE_URL, encoding=DB_CLIENT_ENCODING)
-Session = sessionmaker(bind=engine)
-Base = declarative_base()
-db_session = Session()
 
 def setup():
+    db_engine = create_engine(DB_ENGINE_URL)
+    Base.metadata.create_all(db_engine)
     system = platform.system()
     engine_path = os.path.dirname(__file__)
     engine_paths = dict([
@@ -43,7 +39,10 @@ def setup():
 if __name__ == '__main__':
     setup()
     from app import Application
-    http_server = tornado.httpserver.HTTPServer(Application())
+    from tornado_sqlalchemy import make_session_factory
+    factory = make_session_factory(DB_ENGINE_URL)
+
+    http_server = tornado.httpserver.HTTPServer(Application(session_factory=factory))
     http_server.listen(options.port)
     print('Listening on port %s' % options.port)
     tornado.ioloop.IOLoop.current().start()
