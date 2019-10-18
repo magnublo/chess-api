@@ -40,3 +40,10 @@ def flatten(current_dict, current_key, result_dict):
         else:
             result_dict[current_key + key] = current_dict[key]
     return result_dict
+
+
+def get_meme_hint():
+    with open("meme_hint_img") as meme_hint_file:
+        base64_img = meme_hint_file.read()
+
+    return base64_img

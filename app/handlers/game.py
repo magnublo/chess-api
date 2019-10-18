@@ -4,7 +4,7 @@ import time
 from enum import Enum
 from random import random
 
-from utils import ChessBoardWithUnsaitizedFen as Board, flatten
+from utils import ChessBoardWithUnsaitizedFen as Board, flatten, get_meme_hint
 from chess import STARTING_FEN, WHITE, BLACK
 
 from app.handlers import BaseHandler, engine, info_handler
@@ -69,6 +69,7 @@ class GameHandler(BaseHandler):
 
             if not move_is_legal:
                 response_dict["resetBoard"] = True
+                response_dict["img"] = get_meme_hint()
                 response_dict["msg"] = ILLEGAL_MOVE_MESSAGE
                 db_session.commit()
                 self.write(response_dict)
@@ -98,10 +99,12 @@ class GameHandler(BaseHandler):
             elif game_state == GAME_STATE.COMPUTER_HAS_WON:
                 response_dict["msg"] = COMPUTER_HAS_WON_MESSAGE
                 response_dict["bestMove"] = best_move.uci()
+                response_dict["img"] = get_meme_hint()
             elif game_state == GAME_STATE.HUMAN_HAS_WON:
                 response_dict["msg"] = HUMAN_HAS_WON_MESSAGE
             elif game_state == GAME_STATE.HUMAN_HAS_WON_BUT_CHEATED:
                 response_dict["msg"] = HUMAN_HAS_WON_BUT_CHEATED_MESSAGE
+                response_dict["img"] = get_meme_hint()
 
             db_session.commit()
             self.write(response_dict)

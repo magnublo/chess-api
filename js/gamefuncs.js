@@ -9,6 +9,9 @@ var game = new Chess()
 $('#startPositionBtn').on('click', () => {
  game = new Chess();
  board.position(game.fen())
+    document.getElementById('msg').innerHTML=""
+    document.getElementById('info').innerHTML=""
+    document.getElementById('img').setAttribute('src', "")
 })
 
 function onDragStart (source, piece, position, orientation) {
@@ -44,6 +47,11 @@ function makeComputerMove () {
             document.getElementById('info').innerHTML=data.info
         }else{
             document.getElementById('info').innerHTML=""
+        }
+        if (data.hasOwnProperty("img")){
+            document.getElementById('img').setAttribute('src', data.img)
+        }else{
+            document.getElementById('img').setAttribute('src', "")
         }
         if (data.hasOwnProperty("resetBoard")) {
             game = new Chess()
