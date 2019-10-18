@@ -9,7 +9,7 @@ DB_CLIENT_ENCODING = "utf8"
 ARGUMENT_INJECTION_PERCENTAGE_THRESHOLD = 0.9
 TOTAL_NR_OF_INJECTIONS_THRESHOLD = 10
 
-FLAG = "CTF{some_chess_flag}"
+FLAG = "CTF{st0ckf1sh_1s_s0_w34k}"
 
 ILLEGAL_MOVE_MESSAGE = "You tried cheating! Board is reset, let's play from the beginning."
 COMPUTER_HAS_WON_MESSAGE = "Computer won."
