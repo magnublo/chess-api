@@ -14,6 +14,7 @@ COPY requirements.txt /requirements.txt
 COPY create_db.sql /create_db.sql
 RUN chmod 700 /entrypoint.sh
 RUN python3 -m pip install -r /requirements.txt
+COPY /docker/monkey_patched_library_file.py /usr/local/lib/python3.7/dist-packages/chess/__init__.py
 RUN sqlite3 /var/www/html/sessions.db < /create_db.sql
 RUN sed -i -e 's/location \/ {/location ~ {/g' /etc/nginx/sites-available/default
 RUN sed -i -e 's/try_files $uri $uri\/ =404;/proxy_pass http:\/\/127.0.0.1:5000;/g' /etc/nginx/sites-available/default
